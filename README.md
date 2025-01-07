@@ -5,6 +5,8 @@
 
 ---
 
+![images/screenshot.png](images/screenshot.png)
+
 ## ✨ **Key Features**
 ### 1. **📊 Live Running Stats**
 - Monitor real-time aggregate statistics directly in your browser.
