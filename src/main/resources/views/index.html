@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Benchmark Metrics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 100%;
+            max-width: none;
+            height: 40vh; /* Use viewport height */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+<div class="container mx-auto p-4">
+    <div class="flex justify-between items-center mb-6 mr-10">
+        <h1 class="text-3xl font-bold text-gray-800">Live Benchmark Metrics</h1>
+        <div id="status-message" class="text-green-600 text-2xl font-semibold">Running...</div>
+    </div>
+    <div id="charts-container">
+        <!-- Charts will be injected here -->
+    </div>
+</div>
+<script>
+    const statusMessage = document.getElementById('status-message');
+    const chartsContainer = document.getElementById('charts-container');
+    const colors = ["#3498db", "#e74c3c", "#2ecc71", "#f39c12", "#9b59b6"]; // Predefined colors for queries
+    let charts = {};
+    let lastTimestamp = 0;
+    let poller = null;
+
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch('/stats');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+                if (data.data.isRunning) {
+                    const metrics = data.data.metrics;
+                    if(Object.keys(metrics[Object.keys(metrics)[0]]).length == 0) {
+                        statusMessage.textContent = "Waiting for stats...";
+                        statusMessage.classList.remove('text-green-600');
+                        statusMessage.classList.add('text-yellow-500');
+                    } else {
+                        statusMessage.textContent = "Running...";
+                        statusMessage.classList.remove('text-yellow-500');
+                        statusMessage.classList.add('text-green-600');
+
+                        if (data.data.timestamp > lastTimestamp) {
+                            lastTimestamp = data.data.timestamp;
+                            updateCharts(data.data);
+                        }
+                    }
+                } else {
+                    clearInterval(poller);
+                    statusMessage.textContent = "Benchmark run have completed";
+                    statusMessage.classList.remove('text-green-600');
+                    statusMessage.classList.add('text-yellow-500');
+                }
+            } else {
+                console.error("API Error", data.error_message);
+                statusMessage.textContent = "API Error, check console for details";
+                statusMessage.classList.remove('text-green-600');
+                statusMessage.classList.add('text-red-500');
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            clearInterval(poller);
+            statusMessage.textContent = "Benchmark run have completed (server unreachable)";
+            statusMessage.classList.remove('text-green-600');
+            statusMessage.classList.add('text-yellow-500');
+        } finally {
+            scheduleNextFetch();
+        }
+    };
+
+    function scheduleNextFetch() {
+        setTimeout(fetchData, 1000 * {{#updateIntervalSeconds}}{{updateIntervalSeconds}}{{/updateIntervalSeconds}}{{^updateIntervalSeconds}}2000{{/updateIntervalSeconds}});
+    }
+
+    function updateCharts(data) {
+        const queryKeys = Object.keys(data.metrics);
+        // if (queryKeys.length === 0) return; // Exit if no query data
+
+        // // Assume all queries have the same metrics
+        const metrics = Object.keys(data.metrics[queryKeys[0]]);
+
+        if(Object.keys(charts).length === 0) {
+
+            metrics.forEach(metric => {
+                const chartId = `chart-${metric.replace(/\s/g, '_')}`;
+                const chartDiv = document.createElement('div');
+                chartDiv.classList.add('mb-6', 'shadow-md', 'border', 'border-gray-300', 'p-4', 'rounded');
+                chartsContainer.appendChild(chartDiv);
+
+                const canvas = document.createElement('canvas');
+                canvas.id = chartId;
+                canvas.classList.add('chart-container');
+                chartDiv.appendChild(canvas);
+
+
+                const ctx = canvas.getContext('2d');
+
+                const chartData = {
+                    labels: [],
+                    datasets: []
+                };
+                const chartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: metric
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            align: 'start',
+                            text: metric,
+                            font: {
+                                size: 20,
+                                weight: "bold"
+                            },
+
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                };
+                charts[metric] = new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: chartOptions
+                });
+            });
+        }
+
+        metrics.forEach((metric, metricIndex) => {
+            const chart = charts[metric];
+            chart.data.labels.push(new Date(data.timestamp).toLocaleTimeString());
+            queryKeys.forEach((queryKey, queryIndex) => {
+                if (chart.data.datasets[queryIndex] === undefined) {
+                    chart.data.datasets.push({
+                        label: queryKey,
+                        data: [],
+                        borderColor: colors[queryIndex % colors.length],
+                        fill: false,
+                        tension: 0.4
+                    });
+                }
+                chart.data.datasets[queryIndex].data.push(data.metrics[queryKey][metric])
+            });
+            chart.update();
+        });
+
+    }
+
+
+    // Initial fetch and set interval
+    fetchData();
+    scheduleNextFetch();
+</script>
+</body>
+
+</html>

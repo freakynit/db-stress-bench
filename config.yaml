@@ -1,0 +1,83 @@
+benchmarkingSpec:
+  concurrency: 10
+  runTimeSeconds: 30
+  defaultQueryTimeoutSeconds: 30
+  useVirtualThreads: false
+  rampUpConfig:
+    enable: true
+    durationInSeconds: 10 # this should be at least 5 seconds less than `runTimeSeconds`
+#  resultsOutFile: "results.csv" # leave blank if not needed... note that for long a running benchmark, this can generate a big file
+  resultsOutFile:
+  printRunningStatsEveryNSeconds: 1  # set to -1 to disable printing stats to stdout
+  activeDatabase: com.freakynit.sql.db.stress.bench.db.duckdb.DuckDBDatabaseInterface
+
+serverConfig:
+  enable: true
+  port: 8080
+  graphUpdateIntervalSeconds: 2 # decimal values are allowed... in javascript, this is multiplied by 1000 and passed to setTimeout
+
+dbConfigs:
+    - impl: com.freakynit.sql.db.stress.bench.db.mysql.MySqlDatabaseInterface
+      properties:
+        connectionUrl: "jdbc:mysql://localhost:3306/backend"
+        username: "root"
+        password: "password"
+        autoReconnect: true
+      queryPayloads:
+    - impl: com.freakynit.sql.db.stress.bench.db.sqlite.SqliteDatabaseInterface
+      properties:
+        filePath: "sample_dbs/sqlite_name_age.db"
+      queryPayloads:
+        - filePath: "./sample_csvs/data_sqlite_name_age.csv"
+          name: "filter_on_name_and_age"
+          columns: [ "name", "age" ]
+          query: "SELECT * FROM table_1 WHERE name = '${name}' AND age > ${age}"
+          timeoutSeconds: 10
+          consumeResultSet: true
+        - filePath: "./sample_csvs/data_sqlite_name_age.csv"
+          name: "filter_on_name_like"
+          columns: [ "name", "age" ]
+          query: "SELECT * FROM table_1 WHERE name like '%${name}%'"
+          timeoutSeconds: 10
+          consumeResultSet: true
+        - filePath: "./sample_csvs/data_sqlite_name_age.csv"
+          name: "filter_on_age"
+          columns: [ "name", "age" ]
+          query: "SELECT * FROM table_1 WHERE age > ${age}"
+          timeoutSeconds: 10
+          consumeResultSet: true
+    - impl: com.freakynit.sql.db.stress.bench.db.postgre.PostgresDatabaseInterface
+      properties:
+        connectionUrl: "jdbc:postgresql://localhost:5432/test"
+        username: "root"
+        password: "password"
+      queryPayloads:
+    - impl: com.freakynit.sql.db.stress.bench.db.duckdb.DuckDBDatabaseInterface
+      properties:
+        filePath: "sample_dbs/duckdb_ecommerce.db"
+        readOnly: true
+      queryPayloads:
+        - filePath: "./sample_csvs/data_duckdb_customers.csv"
+          name: "Filter on Customer Name"
+          columns: [ "customer_name" ]
+          query: "select * from Customers where customer_name = '${customer_name}'"
+          timeoutSeconds: 10
+          consumeResultSet: true
+        - filePath: "./sample_csvs/data_duckdb_customers_3_cols.csv"
+          name: "Orders by Customers With 3 At a time"
+          columns: [ "customer_name1", "customer_name2", "customer_name3" ]
+          query: "SELECT c.customer_name, o.order_date FROM Customers c JOIN Orders o ON c.customer_id = o.customer_id where customer_name in ('${customer_name1}', '${customer_name2}', '${customer_name3}');"
+          timeoutSeconds: 10
+          consumeResultSet: true
+        - filePath: "./sample_csvs/data_duckdb_order_counts.csv"
+          name: "Customers With Number of Orders Greater Than Given"
+          columns: [ "order_count" ]
+          query: |
+            SELECT c.customer_name, COUNT(o.order_id) AS num_orders
+            FROM Customers c
+            JOIN Orders o ON c.customer_id = o.customer_id
+            GROUP BY c.customer_name
+            HAVING COUNT(o.order_id) > ${order_count}
+            ORDER BY num_orders DESC
+          timeoutSeconds: 10
+          consumeResultSet: true
