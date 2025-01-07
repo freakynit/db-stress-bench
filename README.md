@@ -4,7 +4,6 @@
 🔥 **db-stress-bench** is a simple but powerful tool to **load test any database** with minimal configuration 🛠️
 
 ---
-<br />
 
 ## ✨ **Key Features**
 ### 1. **📊 Live Running Stats**
@@ -44,7 +43,6 @@ Run with a **single command**:
 java -jar target/db-stress-bench-1.0.1.jar
 ```  
 
-<br />
 
 No setup or configuration required! 🎉
 
@@ -77,7 +75,6 @@ Above one runs load tests against the provided duckdb database. To load test the
 | SQLite      | ✅ Supported |  
 | DuckDB      | ✅ Supported |  
 
-<br />
 
 **Adding a new database?** Implement these 3 methods in the `DatabaseInterface` and you’re good to go! 🚀
 
@@ -91,13 +88,9 @@ We welcome contributions! 🤝
 
 ---
 
-<br />
-
 ## 📜 **License**
 This project is licensed under the [MIT License](LICENSE).
 
 ---
-
-<br />
 
 ### 🌟 Star this repo if you find it useful! ⭐  
