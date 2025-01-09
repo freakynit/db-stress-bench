@@ -7,6 +7,7 @@ import com.freakynit.sql.db.stress.bench.configs.RampUpConfig;
 import com.freakynit.sql.db.stress.bench.db.DatabaseInterface;
 import com.freakynit.sql.db.stress.bench.utils.TemplateEngine;
 import com.freakynit.sql.db.stress.bench.utils.Utils;
+import com.freakynit.sql.db.stress.bench.utils.backports.ExecutorUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -30,6 +31,8 @@ public class BenchmarksRunner {
 
     private List<DataContainer> dataContainers;
     private Map<String, RunningStats> runningStats;
+    private ExecutorService executorService;
+    private CSVPrinter csvPrinter;
 
     private AtomicBoolean shouldStop = new AtomicBoolean(false);
     private static AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -63,6 +66,9 @@ public class BenchmarksRunner {
                 dataContainer -> new RunningStats()
         ));
 
+        this.executorService = ExecutorUtils.createExecutorService(benchmarkingSpec.getUseVirtualThreads(), benchmarkingSpec.getConcurrency());
+        this.csvPrinter = benchmarkingSpec.getResultsOutFile() != null ? new CSVPrinter(new FileWriter(benchmarkingSpec.getResultsOutFile()), CSVFormat.DEFAULT.builder().setHeader(OUT_CSV_HEADER).setAutoFlush(true).build()) : null;
+
         return this;
     }
 
@@ -70,21 +76,10 @@ public class BenchmarksRunner {
         if(!dataContainers.isEmpty()) {
             isRunning.set(true);
 
-            ExecutorService executorService = null;
-            CSVPrinter csvPrinter = null;
             List<Object> connectionObjects = new LinkedList<>();
 
             try {
-                if(benchmarkingSpec.getUseVirtualThreads()) {
-                    final ThreadFactory factory = Thread.ofVirtual().name("virtual-thread-", 0).factory();
-                    executorService = Executors.newThreadPerTaskExecutor(factory);
-                } else {
-                    executorService = Executors.newFixedThreadPool(benchmarkingSpec.getConcurrency());
-                }
-
-                csvPrinter = benchmarkingSpec.getResultsOutFile() != null ? new CSVPrinter(new FileWriter(benchmarkingSpec.getResultsOutFile()), CSVFormat.DEFAULT.builder().setHeader(OUT_CSV_HEADER).setAutoFlush(true).build()) : null;
-
-                submitJobs(executorService, csvPrinter, connectionObjects);
+                submitJobs(csvPrinter, connectionObjects);
             } finally {
                 if(executorService != null) {
                     Utils.awaitExecutorShutdown(executorService, "benchmarks-runner", false);
@@ -102,7 +97,7 @@ public class BenchmarksRunner {
         }
     }
 
-    public void submitJobs(ExecutorService executorService, CSVPrinter csvPrinter, List<Object> connectionObjects) throws InterruptedException {
+    public void submitJobs(CSVPrinter csvPrinter, List<Object> connectionObjects) throws InterruptedException {
         RampUpConfig rampUpConfig = benchmarkingSpec.getRampUpConfig();
 
         long perRampStepSleepMs = rampUpConfig.getEnable()

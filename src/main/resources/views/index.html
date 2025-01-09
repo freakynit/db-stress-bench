@@ -83,7 +83,8 @@
     };
 
     function scheduleNextFetch() {
-        setTimeout(fetchData, 1000 * {{#updateIntervalSeconds}}{{updateIntervalSeconds}}{{/updateIntervalSeconds}}{{^updateIntervalSeconds}}2000{{/updateIntervalSeconds}});
+        //setTimeout(fetchData, 1000 * {{#updateIntervalSeconds}}{{updateIntervalSeconds}}{{/updateIntervalSeconds}}{{^updateIntervalSeconds}}2000{{/updateIntervalSeconds}});
+        setTimeout(fetchData, 1000 * [[${updateIntervalSeconds != null ? updateIntervalSeconds : 2000}]]);
     }
 
     function updateCharts(data) {

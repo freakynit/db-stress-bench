@@ -5,13 +5,12 @@ import com.freakynit.sql.db.stress.bench.StatsProviderInterface;
 import com.freakynit.sql.db.stress.bench.configs.ServerConfig;
 import com.freakynit.sql.db.stress.bench.model.ApiResponseContainer;
 import com.freakynit.sql.db.stress.bench.model.StatsApiResponseModel;
+import com.freakynit.sql.db.stress.bench.utils.backports.MapUtils;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import io.javalin.rendering.template.JavalinMustache;
+import io.javalin.http.staticfiles.Location;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 public class ServerManager {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -21,12 +20,9 @@ public class ServerManager {
     public static void start(ServerConfig serverConfig, StatsProviderInterface statsProvider) {
         ServerManager.statsProvider = statsProvider;
 
-        server = Javalin.create(config -> {
-                    config.staticFiles.add("/views");
-                    config.fileRenderer(new JavalinMustache());
-                })
-                .get("/", ctx -> ctx.render("/views/index.html", Map.of("updateIntervalSeconds", serverConfig.getGraphUpdateIntervalSeconds())))
-                .get("/stats", new GetStatsHandler());
+        server = Javalin.create(config -> config.addStaticFiles("/views", Location.CLASSPATH))
+                .get("/stats", new GetStatsHandler())
+                .get("/", ctx -> ctx.render("/views/index.html", MapUtils.mapOf("updateIntervalSeconds", 2)));
 
         new Thread(() -> server.start(serverConfig.getPort())).start();
     }

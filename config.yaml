@@ -2,7 +2,7 @@ benchmarkingSpec:
   concurrency: 10
   runTimeSeconds: 30
   defaultQueryTimeoutSeconds: 30
-  useVirtualThreads: false
+  useVirtualThreads: true
   rampUpConfig:
     enable: true
     durationInSeconds: 10 # this should be at least 5 seconds less than `runTimeSeconds`

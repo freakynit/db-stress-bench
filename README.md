@@ -58,7 +58,6 @@ Run with a **single command**:
 java -jar target/db-stress-bench-1.0.1.jar
 ```  
 
-
 No setup or configuration required! 🎉
 
 Above one runs load tests against the provided duckdb database. To load test the provided sample **SQLite test database**, just update `activeDatabase` value to `com.freakynit.sql.db.stress.bench.db.sqlite.SqliteDatabaseInterface` and run again.
@@ -80,6 +79,8 @@ Above one runs load tests against the provided duckdb database. To load test the
    ```
 4. Open your browser at **http://localhost:8080** to monitor live stats.
 5. Check out `config.yaml` for all customizations.
+6. Works/compiles on java-8+ (java-21+ if `useVirtualThreads` is true).
+
 ---
 
 ## 🌐 **Supported Databases**
