@@ -48,7 +48,7 @@ java -jar target/db-stress-bench-1.0.1.jar
 
 No setup or configuration required! 🎉
 
-Above one runs load tests against the provided duckdb database. To load test the provided sample **SQLite test database**, just update `activeDatabase` value to `com.freakynit.sql.db.stress.bench.db.duckdb.DuckDBDatabaseInterface` and run again.
+Above one runs load tests against the provided duckdb database. To load test the provided sample **SQLite test database**, just update `activeDatabase` value to `com.freakynit.sql.db.stress.bench.db.sqlite.SqliteDatabaseInterface` and run again.
 
 ---
 
