@@ -92,34 +92,8 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
-<!--                    <release>8</release>-->
                 </configuration>
             </plugin>
-
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-toolchains-plugin</artifactId>-->
-<!--                <version>3.2.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>toolchain</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <toolchains>-->
-<!--                        <jdk>-->
-<!--                            <version>1.8</version>-->
-<!--                            <vendor>any</vendor>-->
-<!--                        </jdk>-->
-<!--                        <jdk>-->
-<!--                            <version>21</version>-->
-<!--                            <vendor>any</vendor>-->
-<!--                        </jdk>-->
-<!--                    </toolchains>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
