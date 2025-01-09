@@ -30,7 +30,7 @@
 - Sample query: `select * from Customers where customer_name = '${customer_name}'`
 
 ### 3. **⚡ High Concurrency Support**
-- Harness the power of **Java Virtual Threads** to run thousands of concurrent queries effortlessly.
+- Harness the power of **Java Virtual Threads** to run thousands of concurrent queries effortlessly (Even works/compiles on java-8+ if not using virtual threads (`useVirtualThreads: false`)).
 - Gradually **ramp up concurrency** with configurable options for smooth stress testing.
 
 ### 4. **🗂️ Extensive Database Support**
