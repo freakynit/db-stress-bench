@@ -3,6 +3,8 @@
 
 🔥 **db-stress-bench** is a simple but powerful tool to **load test any database** with minimal configuration 🛠️
 
+[![Open Source Helpers](https://www.codetriage.com/freakynit/db-stress-bench/badges/users.svg)](https://www.codetriage.com/freakynit/db-stress-bench)
+
 ---
 
 ![images/screenshot.png](images/screenshot.png)
