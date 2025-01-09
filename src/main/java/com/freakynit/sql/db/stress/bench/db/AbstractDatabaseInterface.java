@@ -27,9 +27,6 @@ public abstract class AbstractDatabaseInterface {
                     count++;
                 }
             }
-
-            statement.close();
-            rs.close();
         } finally {
             if (rs != null) {
                 try {
