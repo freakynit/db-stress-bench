@@ -6,10 +6,23 @@
 ---
 
 ![images/screenshot.png](images/screenshot.png)
+> Only 3 of 11 available realtime graphs are shown in this image.
 
 ## ✨ **Key Features**
 ### 1. **📊 Live Running Stats**
 - Monitor real-time aggregate statistics directly in your browser.
+- Available *live* in-browser aggregate stat graphs: 
+  - Queries Per Second
+  - Average Query Time (ms)
+  - Query StdDev (ms)
+  - Min Query Time (ms)
+  - Max Query Time (ms)
+  - Median Query Time (ms)
+  - Successfully Completed Queries
+  - Failed Queries
+  - Invalid Input Payloads
+  - Total Queries
+  - Percentiles: 20th, 50th, 75th, 90th, 95th, 99th
 
 ### 2. **🖋️ Query Templates**
 - Configure **multiple queries** to stress-test your database.
