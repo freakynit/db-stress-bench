@@ -2,23 +2,41 @@ package com.freakynit.sql.db.stress.bench;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.freakynit.sql.db.stress.bench.deserializers.MedianStatJsonSerializer;
 import com.freakynit.sql.db.stress.bench.deserializers.PercentileStatsJsonSerializer;
-import com.freakynit.sql.db.stress.bench.runner.BenchmarksRunner;
 import com.freakynit.sql.db.stress.bench.utils.RunningPercentilesCalculator;
 import com.freakynit.sql.db.stress.bench.utils.RunningMedianCalculator;
 import lombok.Getter;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 @Getter
 public class RunningStats {
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    private static final String METRIC_QUERIES_PER_SECOND = "Queries Per Second (completed only)";
+    private static final String METRIC_AVERAGE_QUERY_TIME_MS = "Average Query Time (ms)";
+    private static final String METRIC_QUERY_STDDEV_MS = "Query StdDev (ms)";
+    private static final String METRIC_MIN_QUERY_TIME_MS = "Min Query Time (ms)";
+    private static final String METRIC_MAX_QUERY_TIME_MS = "Max Query Time (ms)";
+    private static final String METRIC_MEDIAN_QUERY_TIME_MS = "Median Query Time (ms)";
+    private static final String METRIC_SUCCEEDED_QUERIES = "Successfully Completed Queries";
+    private static final String METRIC_FAILED_QUERIES = "Failed Queries";
+    private static final String METRIC_INVALID_INPUT_PAYLOADS = "Invalid Input Payloads";
+    private static final String METRIC_TOTAL_QUERIES = "Total Queries (completed + failed + invalid payloads)";
+    private static final String METRIC_PERCENTILE_20_MS = "Percentile(20'th) (ms)";
+    private static final String METRIC_PERCENTILE_50_MS = "Percentile(50'th) (ms)";
+    private static final String METRIC_PERCENTILE_75_MS = "Percentile(75'th) (ms)";
+    private static final String METRIC_PERCENTILE_90_MS = "Percentile(90'th) (ms)";
+    private static final String METRIC_PERCENTILE_95_MS = "Percentile(95'th) (ms)";
+    private static final String METRIC_PERCENTILE_99_MS = "Percentile(99'th) (ms)";
+
+    public static final List<String> COUNTER_METRICS = Arrays.asList(METRIC_SUCCEEDED_QUERIES, METRIC_FAILED_QUERIES, METRIC_INVALID_INPUT_PAYLOADS, METRIC_TOTAL_QUERIES);
+
     @JsonProperty("completed")
     private long succeededCount = 0;
     @JsonProperty("failed")
@@ -53,22 +71,22 @@ public class RunningStats {
             return metrics; // return empty map if stats have no data points aggregated yet
         }
 
-        metrics.put("Queries Per Second (completed only)", queriesPerSecond);
-        metrics.put("Average Query Time (ms)", avgTimeNanos /1e6);
-        metrics.put("Query StdDev (ms)", stdDevTimeNanos /1e6);
-        metrics.put("Min Query Time (ms)", minTimeNanos /1e6);
-        metrics.put("Max Query Time (ms)", maxTimeNanos /1e6);
-        metrics.put("Median Query Time (ms)", timeNanosMedianCalculator.getMedian()/1e6);
-        metrics.put("Successfully Completed Queries", succeededCount);
-        metrics.put("Failed Queries", failedCount);
-        metrics.put("Invalid Input Payloads", invalidPayloadCount);
-        metrics.put("Total Queries (completed + failed + invalid payloads)", totalCount);
-        metrics.put("Percentile(20'th) (ms)", timeNanosPercentileCalculator.estimatePercentile(20)/1e6);
-        metrics.put("Percentile(50'th) (ms)", timeNanosPercentileCalculator.estimatePercentile(50)/1e6);
-        metrics.put("Percentile(75'th) (ms)", timeNanosPercentileCalculator.estimatePercentile(75)/1e6);
-        metrics.put("Percentile(90'th) (ms)", timeNanosPercentileCalculator.estimatePercentile(90)/1e6);
-        metrics.put("Percentile(95'th) (ms)", timeNanosPercentileCalculator.estimatePercentile(95)/1e6);
-        metrics.put("Percentile(99'th) (ms)", timeNanosPercentileCalculator.estimatePercentile(99)/1e6);
+        metrics.put(METRIC_QUERIES_PER_SECOND, queriesPerSecond);
+        metrics.put(METRIC_AVERAGE_QUERY_TIME_MS, avgTimeNanos / 1e6);
+        metrics.put(METRIC_QUERY_STDDEV_MS, stdDevTimeNanos / 1e6);
+        metrics.put(METRIC_MIN_QUERY_TIME_MS, minTimeNanos / 1e6);
+        metrics.put(METRIC_MAX_QUERY_TIME_MS, maxTimeNanos / 1e6);
+        metrics.put(METRIC_MEDIAN_QUERY_TIME_MS, timeNanosMedianCalculator.getMedian() / 1e6);
+        metrics.put(METRIC_SUCCEEDED_QUERIES, succeededCount);
+        metrics.put(METRIC_FAILED_QUERIES, failedCount);
+        metrics.put(METRIC_INVALID_INPUT_PAYLOADS, invalidPayloadCount);
+        metrics.put(METRIC_TOTAL_QUERIES, totalCount);
+        metrics.put(METRIC_PERCENTILE_20_MS, timeNanosPercentileCalculator.estimatePercentile(20) / 1e6);
+        metrics.put(METRIC_PERCENTILE_50_MS, timeNanosPercentileCalculator.estimatePercentile(50) / 1e6);
+        metrics.put(METRIC_PERCENTILE_75_MS, timeNanosPercentileCalculator.estimatePercentile(75) / 1e6);
+        metrics.put(METRIC_PERCENTILE_90_MS, timeNanosPercentileCalculator.estimatePercentile(90) / 1e6);
+        metrics.put(METRIC_PERCENTILE_95_MS, timeNanosPercentileCalculator.estimatePercentile(95) / 1e6);
+        metrics.put(METRIC_PERCENTILE_99_MS, timeNanosPercentileCalculator.estimatePercentile(99) / 1e6);
 
         return metrics;
     }
@@ -113,22 +131,10 @@ public class RunningStats {
 
     @Override
     public String toString() {
-        return "RuntimeAggregateStats{" +
-                "avgTimeMs=" + avgTimeNanos /1e6 +
-                ", maxTimeMs=" + maxTimeNanos /1e6 +
-                ", minTimeMs=" + minTimeNanos /1e6 +
-                ", totalCount=" + totalCount +
-                ", queriesPerSecond=" + queriesPerSecond +
-                ", succeededCount=" + succeededCount +
-                ", failedCount=" + failedCount +
-                ", percentile(25)=" + timeNanosPercentileCalculator.estimatePercentile(25)/1e6 +
-                ", percentile(50)=" + timeNanosPercentileCalculator.estimatePercentile(50)/1e6 +
-                ", percentile(75)=" + timeNanosPercentileCalculator.estimatePercentile(75)/1e6 +
-                ", percentile(90)=" + timeNanosPercentileCalculator.estimatePercentile(90)/1e6 +
-                ", percentile(95)=" + timeNanosPercentileCalculator.estimatePercentile(95)/1e6 +
-                ", percentile(99)=" + timeNanosPercentileCalculator.estimatePercentile(99)/1e6 +
-                ", medianTimeMs=" + timeNanosMedianCalculator.getMedian()/1e6 +
-                ", stdDevTimeMs=" + stdDevTimeNanos /1e6 +
-                '}';
+        try {
+            return mapper.writeValueAsString(toMap());
+        } catch (JsonProcessingException e) {
+            return toMap().toString();
+        }
     }
 }

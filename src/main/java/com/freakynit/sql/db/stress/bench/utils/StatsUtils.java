@@ -23,12 +23,14 @@ public class StatsUtils {
             String queryName = entry.getKey();
 
             for (Map.Entry<String, Number> metricEntry : entry.getValue().entrySet()) {
+                String metricType = RunningStats.COUNTER_METRICS.contains(metricEntry.getKey()) ? "counter" : "gauge";
+
                 String metricName = toPrometheusSafeName(metricEntry.getKey());
                 Number metricValue = metricEntry.getValue();
 
                 // Generate Prometheus-compatible format
                 metrics.append(String.format("# HELP %s Description for %s\n", metricName, metricName));
-                metrics.append(String.format("# TYPE %s counter\n", metricName));
+                metrics.append(String.format("# TYPE %s %s\n", metricName, metricType));
                 metrics.append(String.format("%s{query_name=\"%s\"} %s\n", metricName, queryName, metricValue));
             }
         }
