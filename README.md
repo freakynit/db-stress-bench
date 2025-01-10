@@ -25,6 +25,7 @@
   - Invalid Input Payloads
   - Total Queries
   - Percentiles: 20th, 50th, 75th, 90th, 95th, 99th
+- Support for these same metrics at prometheus compatible metrics endpoint at `/metrics`.
 
 ### 2. **🖋️ Query Templates**
 - Configure **multiple queries** to stress-test your database.
