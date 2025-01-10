@@ -81,3 +81,10 @@ dbConfigs:
             ORDER BY num_orders DESC
           timeoutSeconds: 10
           consumeResultSet: true
+    - impl: com.freakynit.sql.db.stress.bench.db.cassandradb.CassandraDBDatabaseInterface
+      properties:
+        contactPoints: "127.0.0.1:9042" # comma separated list
+        datacenter: datacenter1
+        keyspace: sample_keyspace
+      queryPayloads:
+

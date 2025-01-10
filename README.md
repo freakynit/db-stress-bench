@@ -41,6 +41,7 @@
     - **PostgreSQL** 🐘
     - **SQLite** 📦
     - **DuckDB** 🦆
+    - **CassandraDB** 🟣
 
 ### 5. **🧩 Easy Extensibility**
 Add support for new databases by implementing a **simple 3-method interface**.
@@ -91,7 +92,8 @@ Above one runs load tests against the provided duckdb database. To load test the
 | MySQL       | ✅ Supported |  
 | PostgreSQL  | ✅ Supported |  
 | SQLite      | ✅ Supported |  
-| DuckDB      | ✅ Supported |  
+| DuckDB      | ✅ Supported |
+| CassandraDB | ✅ Supported |
 
 
 **Adding a new database?** Implement these 3 methods in the `DatabaseInterface` and you’re good to go! 🚀
