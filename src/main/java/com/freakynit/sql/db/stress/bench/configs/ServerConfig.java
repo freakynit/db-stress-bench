@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class ServerConfig {
-    private Boolean enable;
+    private Boolean enableStatsEndpoint;
+    private Boolean enablePrometheusMetricsEndpoint;
     private Integer port;
     private Float graphUpdateIntervalSeconds;
 }

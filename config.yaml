@@ -1,5 +1,5 @@
 benchmarkingSpec:
-  concurrency: 10
+  concurrency: 5
   runTimeSeconds: 30
   defaultQueryTimeoutSeconds: 30
   useVirtualThreads: false
@@ -12,7 +12,8 @@ benchmarkingSpec:
   activeDatabase: com.freakynit.sql.db.stress.bench.db.duckdb.DuckDBDatabaseInterface
 
 serverConfig:
-  enable: true
+  enableStatsEndpoint: true
+  enablePrometheusMetricsEndpoint: true
   port: 8080
   graphUpdateIntervalSeconds: 2 # decimal values are allowed... in javascript, this is multiplied by 1000 and passed to setTimeout
 
