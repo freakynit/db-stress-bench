@@ -86,16 +86,6 @@
             <artifactId>java-driver-core</artifactId>
             <version>4.17.0</version>
         </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-            <version>1.12.3</version>  <!-- Check for latest version -->
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.12.3</version> <!-- Match core version -->
-        </dependency>
     </dependencies>
 
     <build>

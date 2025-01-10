@@ -8,8 +8,6 @@ import com.freakynit.sql.db.stress.bench.db.DatabaseInterface;
 import com.freakynit.sql.db.stress.bench.runner.BenchmarksRunner;
 import com.freakynit.sql.db.stress.bench.server.ServerManager;
 import com.freakynit.sql.db.stress.bench.utils.StatsUtils;
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -41,12 +39,6 @@ public class BenchmarkingApplication {
 
         databaseInterface = initDatabaseInterface(dbConfig);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> shutdownServices()));
-
-        // Create a PrometheusMeterRegistry (this is the registry that collects metrics)
-        PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(io.micrometer.prometheus.PrometheusConfig.DEFAULT);
-
-        // Register the registry with Micrometer
-        Metrics.addRegistry(prometheusRegistry);
 
         runBenchmarkingIteration();
     }
